@@ -1,0 +1,34 @@
+# --- Build Directories ---
+build/
+bin/
+out/
+debug/
+release/
+x64/
+x86/
+
+# --- CMake Generated Files ---
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+Makefile
+
+# --- Visual Studio & VS Code Junk ---
+.vs/
+.vscode/
+*.user
+*.suo
+*.pdb
+*.ipch
+*.aps
+
+# --- Compiled Executables (generated in root) ---
+*.exe
+*.exp
+*.lib
+*.obj
+*.ilk
+
+# --- OS Junk ---
+.DS_Store
+Thumbs.db
