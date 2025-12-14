@@ -21,7 +21,7 @@ A high-performance logic circuit simulator built in C++ from scratch. This tool 
 ## 📦 How to Build (Windows)
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/owaseraph/Digital_Logic_Sim.git](https://github.com/owaseraph/Digital_Logic_Sim.git)
+    git clone https://github.com/owaseraph/Digital_Logic_Sim.git
     cd Digital_Logic_Sim
     ```
 
