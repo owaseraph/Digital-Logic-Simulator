@@ -78,7 +78,7 @@ class Or_Gate: public Component{
         }
 
         std::string getType() override{
-            return "NOT";
+            return "OR";
         }
 
 };
