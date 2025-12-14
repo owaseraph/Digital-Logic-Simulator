@@ -80,5 +80,9 @@ class Output_Light : public Component{
             SDL_SetRenderDrawColor(renderer, 255,255,255,255);
             SDL_RenderRect(renderer, &rect);
         }
+
+        std::string getType() override{
+            return "LIGHT";
+        }
 };
 #endif // OUTPUT_LIGHT_HPP

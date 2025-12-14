@@ -78,5 +78,9 @@ class Not_Gate: public Component{
             SDL_RenderRect(renderer, &rect);
         }
 
+        std::string getType() override{
+            return "NOT";
+        }
+
 };
 #endif // GATE_NOT_HPP

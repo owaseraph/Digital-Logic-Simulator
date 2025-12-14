@@ -55,7 +55,11 @@ class Input_Switch : public Component {
             }
             
             return HIT_NONE;
-    }
+        }
+
+        std::string getType() override{
+            return "SWITCH";
+        }
 };
 
 #endif // INPUT_SWITCH_HPP

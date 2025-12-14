@@ -78,6 +78,8 @@ class And_Gate: public Component{
             SDL_RenderRect(renderer, &rect);
         }
 
-
+        std::string getType() override{
+            return "AND";
+        }
 };
 #endif // GATE_AND_HPP

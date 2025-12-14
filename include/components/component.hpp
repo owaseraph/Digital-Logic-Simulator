@@ -35,8 +35,6 @@ public:
     int labelHeight = 0;
 
 
-
-
     Component(float startX, float startY, std::string labelText="") : x(startX), y(startY),
                                             width(60), height(40), outputState(false),
                                             isDragging(false), dragOffsetX(0), dragOffsetY(0) {};
@@ -51,12 +49,16 @@ public:
 
     // 1. brain : updates outputState based on inputs
     // it is "= 0" because a generic component doesn't know how to calculate.
+    // @brief
+    // function to calculate the output state of a component
     virtual void calculate() = 0;
 
     // 2. the face : draws specific shape
     virtual void draw(SDL_Renderer *renderer) = 0;
 
     // 3. hit detection
+    // @brief
+    // function to detect the zone hit by the mouse when pressing click
     virtual HitZone getHitZone(float mx, float my) {
         // check output pin
         if (mx >= x + width - 10 && mx <= x + width + 10 &&
@@ -109,6 +111,10 @@ public:
         }
     }
 
+
+
+    // @brief
+    // function to draw the text of each component
     void drawLabel(SDL_Renderer* renderer){
         if(labelTexture){
             //center the text
@@ -119,6 +125,12 @@ public:
             SDL_RenderTexture(renderer, labelTexture, NULL, &dstRect);
         }
     }
+
+
+    // @brief
+    // function to return a status json of each component implemented
+    // must be pure virtual, each child must implement their own version based on necessities
+    virtual std::string getType() = 0;
 };
 
 #endif // COMPONENT_HPP

@@ -15,6 +15,7 @@
 #include <gate_and.hpp>
 #include <gate_or.hpp>
 #include <gate_not.hpp>
+#include <json.hpp>
 
 
 class Application{
@@ -45,5 +46,7 @@ class Application{
         void update();
         void render();
         void cleanup();
+        void saveCircuit(const std::string&);
+        void loadCircuit(const std::string&);
 };
 #endif // APPLICATION_HPP

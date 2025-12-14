@@ -3,10 +3,14 @@
 #include <imgui.h>
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlrenderer3.h>
+#include <fstream> //file reading and writing as to save the progress
+#include <json.hpp>
+
+using json = nlohmann::json;
 
 Application::Application()
 {
-    // Constructor (Variables are already initialized in header)
+    //constructor (variables are already initialized in header file)
 }
 
 Application::~Application()
@@ -304,6 +308,135 @@ void Application::update()
     }
 }
 
+void Application::saveCircuit(const std::string& filename){
+    json j_scene = json::array(); //root array
+
+    //serialize every component
+    for(int i=0; i<components.size();i++){
+        Component* comp = components[i];
+        json j_comp;
+
+        j_comp["id"] = i; //save index
+        j_comp["type"] = comp->getType(); //save type
+        j_comp["x"] = comp->x;
+        j_comp["y"] = comp->y;
+
+
+        //handle wiring
+        //helper lambda to find index of source pointer
+        auto getIndex = [&](Component* target) -> int{
+            if(!target){
+                return -1;
+            }
+            auto it = std::find(components.begin(), components.end(), target);
+            if(it != components.end()){
+                return std::distance(components.begin(), it);
+            }
+            return -1;
+        };
+
+        if (auto g = dynamic_cast<And_Gate*>(comp)) {
+            j_comp["in1"] = getIndex(g->input1);
+            j_comp["in2"] = getIndex(g->input2);
+        }
+        else if (auto g = dynamic_cast<Or_Gate*>(comp)) {
+            j_comp["in1"] = getIndex(g->input1);
+            j_comp["in2"] = getIndex(g->input2);
+        }
+        else if (auto g = dynamic_cast<Not_Gate*>(comp)) {
+            j_comp["src"] = getIndex(g->source);
+        }
+        else if (auto l = dynamic_cast<Output_Light*>(comp)) {
+            j_comp["src"] = getIndex(l->source);
+        }
+
+        j_scene.push_back(j_comp);
+    }
+
+    //write to file
+    std::ofstream file(filename);
+    if(file.is_open()){
+        file<<j_scene.dump(4);//4 space indent
+        file.close();
+        std::cout<<"Saved to: "<<filename<<std::endl;
+    }
+}
+
+void Application::loadCircuit(const std::string& filename){
+    std::ifstream file(filename);
+    if(!file.is_open()){
+        std::cout<<"Failed to open: "<<filename<<std::endl;
+        return;
+    }
+
+    json j_scene;
+    file>>j_scene; //parse JSON
+
+    //clear old scene
+    for(Component* c: components){
+        delete c;
+    }
+    components.clear();
+    selectedComponent = nullptr;
+    wiringSource = nullptr;
+    isWiring = false;
+
+
+    //create objects (no wiring)
+    for(const auto& item: j_scene){
+        std::string type = item["type"];
+        float x = item["x"];
+        float y = item["y"];
+
+        Component* newComp = nullptr;
+
+        if (type == "AND") newComp = new And_Gate(x, y);
+        else if (type == "OR") newComp = new Or_Gate(x, y);
+        else if (type == "NOT") newComp = new Not_Gate(x, y);
+        else if (type == "SWITCH") newComp = new Input_Switch(x, y);
+        else if (type == "LIGHT") newComp = new Output_Light(x, y);
+
+        if(newComp){
+            //re-create the label texture
+            newComp->labelText = (type == "SWITCH" ? "Input" : type);
+            if(type == "LIGHT"){
+                newComp->labelText = "Light";
+            }
+            newComp->createLabelTexture(renderer,font);
+
+            components.push_back(newComp);
+        }
+    }
+
+    //reconnect wires
+    for(int i=0; i<j_scene.size(); i++){
+        json item = j_scene[i];
+
+        Component* comp = components[i];
+
+        if (auto g = dynamic_cast<And_Gate*>(comp)) {
+            int idx1 = item.value("in1", -1); // value() gets key or default -1
+            int idx2 = item.value("in2", -1);
+            if (idx1 >= 0 && idx1 < components.size()) g->input1 = components[idx1];
+            if (idx2 >= 0 && idx2 < components.size()) g->input2 = components[idx2];
+        }
+        else if (auto g = dynamic_cast<Or_Gate*>(comp)) {
+            int idx1 = item.value("in1", -1);
+            int idx2 = item.value("in2", -1);
+            if (idx1 >= 0 && idx1 < components.size()) g->input1 = components[idx1];
+            if (idx2 >= 0 && idx2 < components.size()) g->input2 = components[idx2];
+        }
+        else if (auto g = dynamic_cast<Not_Gate*>(comp)) {
+            int src = item.value("src", -1);
+            if (src >= 0 && src < components.size()) g->source = components[src];
+        }
+        else if (auto l = dynamic_cast<Output_Light*>(comp)) {
+            int src = item.value("src", -1);
+            if (src >= 0 && src < components.size()) l->source = components[src];
+        }
+    }
+}
+
 void Application::render()
 {
     //start imgui frame
@@ -367,6 +500,17 @@ void Application::render()
         newLight->labelText = "Light";
         newLight->createLabelTexture(renderer, font);
         components.push_back(newLight);
+    }
+    ImGui::SameLine();
+    float spacing = ImGui::GetContentRegionAvail().x - 120; // 120 is approx width of 2 buttons
+    if (spacing > 0) ImGui::SameLine(ImGui::GetCursorPosX() + spacing);
+
+    if (ImGui::Button("SAVE")) {
+        saveCircuit("circuit.json");
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("LOAD")) {
+        loadCircuit("circuit.json");
     }
     //finish logic
     ImGui::End();

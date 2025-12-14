@@ -11,6 +11,7 @@ A high-performance logic circuit simulator built in C++ from scratch. This tool 
 * **Smart Wiring:** Click-to-connect wiring system with safety validation.
 * **Grid Snapping:** Auto-alignment for neat circuit design.
 * **Engine:** Custom engine built on SDL3.
+* **Save & Load System:** Persist your circuits to JSON files to continue your work later.
 
 ## 🛠️ Dependencies
 * **Language:** C++17 or later
@@ -42,6 +43,12 @@ A high-performance logic circuit simulator built in C++ from scratch. This tool 
 * **Click & Drag:** Move component (snaps to grid).
 * **Delete / Backspace:** Delete selected component.
 * **UI Toolbar:** Click buttons at the top to spawn gates.
+* **Toolbar:** Top bar for spawning components and Saving/Loading circuits.
+
+## 💾 Saving & Loading
+* **Save:** Click the **SAVE** button in the top-right corner. This writes the current circuit state to `circuit.json` in the program's directory.
+* **Load:** Click **LOAD** to wipe the current canvas and restore the circuit from `circuit.json`.
+
 
 ## 📝 License
 This project is for educational purposes.
